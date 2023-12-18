@@ -1,0 +1,20 @@
+[user]
+	name = Ryan Tolsma
+	email = 1tolsmar@gmail.com
+
+[alias]
+	co = checkout
+	s = status
+	ri = rebase -i
+	rc = rebase --continue
+	pf = push --force-with-lease
+	b = branch
+	l = log
+
+[fetch]
+	prune = true
+[submodule]
+	recurse = true
+
+[http]
+	postBuffer = 1572864000
