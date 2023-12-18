@@ -1,0 +1,12 @@
+let g:netrw_dirhistmax  =10
+let g:netrw_dirhistcnt =0
+let g:netrw_dirhist_0='/Users/ryan/Git/raytrace/.git'
+let g:netrw_dirhist_9='/Users/ryan/.EasyOCR/model'
+let g:netrw_dirhist_8='/Users/ryan/.EasyOCR'
+let g:netrw_dirhist_7='/Users/ryan/.EasyOCR/user_network'
+let g:netrw_dirhist_6='/Users/ryan/.EasyOCR'
+let g:netrw_dirhist_5='/Users/ryan/.EasyOCR/model'
+let g:netrw_dirhist_4='/Users/ryan'
+let g:netrw_dirhist_3='/Users/ryan/.zsh'
+let g:netrw_dirhist_2='/Library/User Template/English.lproj'
+let g:netrw_dirhist_1='/Users/ryan/Library/Application Support/AddressBook/Metadata'
