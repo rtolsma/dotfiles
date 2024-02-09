@@ -60,6 +60,7 @@ Bitwarden
 Flux
 VLC
 Rewind
+MonitorControl
 
 Chrome Extensions:
 Vimium
@@ -68,4 +69,14 @@ Adblock
 Bitwarden
 
 
- 
+ Keyboard Changes:
+ max key repeat, min key repeat delay
+
+ alt - d == alfred
+ alt + # = switch to workspace
+ alt + . = move desktop right
+ alt + , = move desktop left
+ alt + space = mission control
+
+ Mouse Settings:
+natural scrolling for trackpad, high scroll sensitivity, medium double click sensitivity
