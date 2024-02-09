@@ -1,15 +1,17 @@
-# change focus
-alt - j : yabai -m window --focus west
-alt - n : yabai -m window --focus south
-alt - p : yabai -m window --focus north
-alt - k : yabai -m window --focus east
+# change focus on displays...
+alt - h : yabai -m display --focus west
+alt - l : yabai -m display --focus east
 
+
+# change focus within display
+alt - j : yabai -m window --focus west
+alt - k : yabai -m window --focus east
 
 # shift window in current workspace
 alt + shift - j : yabai -m window --swap west || $(yabai -m window --display west; yabai -m display --focus west)
+alt + shift - k : yabai -m window --swap east || $(yabai -m window --display east; yabai -m display --focus east)
 alt + shift - n : yabai -m window --swap south || $(yabai -m window --display south; yabai -m display --focus south)
 alt + shift - p : yabai -m window --swap north || $(yabai -m window --display north; yabai -m display --focus north)
-alt + shift - k : yabai -m window --swap east || $(yabai -m window --display east; yabai -m display --focus east)
 
 # set insertion point in focused container
 alt + ctrl - j : yabai -m window --insert west
@@ -20,14 +22,14 @@ alt + ctrl - k : yabai -m window --insert east
 
 # THESE DON'T WORK??
 # go back to previous workspace (kind of like back_and_forth in i3)
-alt - b : yabai -m space --focus recent
-alt + shift - i : yabai -m space --focus prev      # move left
-alt + shift - o : yabai -m space --focus next 	   # move right
-
+alt - f : yabai -m window --focus recent
 
 # move focused window to previous workspace
-alt + shift - b : yabai -m window --space recent; \
-                  yabai -m space --focus recent
+alt + shift - f : yabai -m window --space recent; \
+
+#alt + shift - i : yabai -m space --focus prev      # move left
+#alt + shift - o : yabai -m space --focus next 	   # move right
+#                  yabai -m space --focus recent
 
 # move focused window to next/prev workspace
 alt + shift - 1 : yabai -m window --space 1
@@ -39,6 +41,7 @@ alt + shift - 6 : yabai -m window --space 6
 alt + shift - 7 : yabai -m window --space 7
 alt + shift - 8 : yabai -m window --space 8
 alt + shift - 9 : yabai -m window --space 9
+alt + shift - 0 : yabai -m window --space 10
 
 
 # # mirror tree y-axis
@@ -48,13 +51,13 @@ alt + shift - y : yabai -m space --mirror y-axis
 alt + shift - x: yabai -m space --mirror x-axis
 
 # balance size of windows
-alt + shift - 0 : yabai -m space --balance
+alt + shift - u : yabai -m space --balance
 
 
 
 # change layout of desktop
 alt - e : yabai -m space --layout bsp || yabai -m space --mirror y-axis # so refresh correct orientation when already in bsp
-alt - l : yabai -m space --layout float
+# alt - l : yabai -m space --layout float
 alt - w : yabai -m space --layout stack
 
 
@@ -77,7 +80,7 @@ alt - o : yabai -m window --focus stack.prev || yabai -m window --focus north
 #            | jq -sre "add | map(select(.minimized != 1)) | sort_by(.display, .frame.y, .frame.y, .id) | nth(index(map(select(.focused == 1))) - 1).id" \
 
 # enter fullscreen mode for the focused container
-alt - f : yabai -m window --toggle zoom-fullscreen
+#alt - f : yabai -m window --toggle zoom-fullscreen
 
 # toggle window native fullscreen
-alt + shift - f : yabai -m window --toggle native-fullscreen
+#alt + shift - f : yabai -m window --toggle native-fullscreen

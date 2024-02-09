@@ -37,6 +37,7 @@ Brew Packages:
 - vlc
 - wget
 - yabai
+- karabiner-elements # caps lock==left alt mod
 
 
 Apps:
