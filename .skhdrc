@@ -1,6 +1,6 @@
 # change focus on displays...
-alt - h : yabai -m display --focus west
-alt - l : yabai -m display --focus east
+alt - h : yabai -m display --focus 2 || $( yabai -m query --displays --display | jq '.id' | ~/.yabai-focus.sh )
+alt - l : yabai -m display --focus 1 || $( yabai -m query --displays --display | jq '.id' | ~/.yabai-focus.sh )
 
 
 # change focus within display
