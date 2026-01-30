@@ -1,3 +1,6 @@
+" Fix clipboard timeout on macOS
+set clipboard=exclude:.*
+
 set background=light
 colorscheme solarized8_flat
 
@@ -29,16 +32,24 @@ set autoindent
 set smartindent
 
 set number
-set relativenumber
+" set relativenumber
 
 set ignorecase
 set smartcase
 set scrolloff=10
 
-set mouse=nicr
+" FIX: Disable mouse to prevent clipboard timeout
+" set mouse=nicr
 set showcmd
 
 set completeopt=preview
+
+" Performance optimizations
+set ttyfast
+set regexpengine=1
+set synmaxcol=200
+set updatetime=300
+set redrawtime=10000
 
 "
 nmap <space> <leader>
@@ -83,5 +94,3 @@ vnoremap gK 8k
 nnoremap <cr> o<esc>
 nnoremap <C-a> <nop>
 nnoremap <C-x> <nop>
-
-

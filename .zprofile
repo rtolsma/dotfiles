@@ -1,9 +1,9 @@
 # Brew
 eval "$(/opt/homebrew/bin/brew shellenv)"
 
-# Asdf
-. "$HOME/.asdf/asdf.sh"
-fpath=(${ASDF_DIR}/completions $fpath)
+
+fpath=(${ASDF_DIR}/completions $fpath) # Asdf completions
+fpath=($HOMEBREW_PREFIX/share/zsh/site-functions $fpath) # just completions
 autoload -Uz compinit && compinit
 #
 
@@ -12,3 +12,4 @@ export PATH="$PATH:/Users/ryan/.local/bin"
 
 # Added by OrbStack: command-line tools and integration
 source ~/.orbstack/shell/init.zsh 2>/dev/null || :
+
