@@ -373,12 +373,6 @@ defaults write com.dshnkao.SpaceId underlineActiveMonitor -bool true
 defaults write com.dshnkao.SpaceId colorPref -int 1
 defaults write com.dshnkao.SpaceId iconPref -int 1
 
-# Rectangle
-defaults write com.knollsoft.Rectangle alternateDefaultShortcuts -bool true
-defaults write com.knollsoft.Rectangle launchOnLogin -bool true
-defaults write com.knollsoft.Rectangle subsequentExecutionMode -int 1
-defaults write com.knollsoft.Rectangle SUEnableAutomaticChecks -bool false
-
 # Flux (f.lux) -- Denver area
 defaults write org.herf.Flux location "39.623700,-104.873800"
 defaults write org.herf.Flux locationTextField -int 10019
@@ -574,7 +568,7 @@ echo "7. CleanShot X: activate license (YOUR_CLEANSHOT_LICENSE)"
 echo "8. Wispr Flow: sign in with Google, verify keyboard shortcuts"
 echo "9. Create 12 desktops: Mission Control > click '+' until you have 12"
 echo "10. Grant accessibility permissions (System Settings > Privacy):"
-echo "    skhd, yabai, Hammerspoon, Alfred, Rectangle, Homerow, iTerm2"
+echo "    skhd, yabai, Hammerspoon, Alfred, Homerow, iTerm2"
 echo "11. Grant screen recording permissions:"
 echo "    Chrome, iTerm2, Slack, Discord, Teams, Zoom, Arc, CleanShot X"
 echo "12. Sign in to: 1Password, Dropbox, Google Drive, OneDrive,"

@@ -140,7 +140,6 @@ cask "ngrok"
 # Casks -- system & window management
 cask "hammerspoon"
 cask "karabiner-elements"
-cask "rectangle"
 cask "spaceid"
 cask "alfred"
 cask "cleanshot"

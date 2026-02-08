@@ -30,7 +30,7 @@ After the script completes, follow the manual steps printed at the end (license 
 3. [Shell Configuration](#3-shell-configuration)
 4. [Git Configuration](#4-git-configuration)
 5. [Version Managers (asdf, rye, cargo, bun)](#5-version-managers)
-6. [Window Management (yabai + skhd + Rectangle)](#6-window-management-yabai--skhd--rectangle)
+6. [Window Management (yabai + skhd)](#6-window-management-yabai--skhd)
 7. [Keyboard (Karabiner-Elements)](#7-keyboard-karabiner-elements)
 8. [Hammerspoon](#8-hammerspoon)
 9. [Alfred 5](#9-alfred-5)
@@ -158,7 +158,7 @@ npm install -g @openai/codex cursor-tools happy-coder pnpm pyright @anthropic-ai
 
 ---
 
-## 6. Window Management (yabai + skhd + Rectangle)
+## 6. Window Management (yabai + skhd)
 
 ### ~/.yabairc
 
@@ -185,10 +185,6 @@ BSP tiling layout, mouse follows focus, inactive window opacity 90%, no gaps/pad
 ```bash
 echo "$(whoami) ALL=(root) NOPASSWD: sha256:$(shasum -a 256 $(which yabai) | cut -d " " -f 1) $(which yabai) --load-sa" | sudo tee /private/etc/sudoers.d/yabai
 ```
-
-### Rectangle
-
-Supplementary window snapping. Configured via defaults: alternate shortcuts, launch on login.
 
 ---
 
@@ -253,7 +249,6 @@ All configured via `defaults write` in setup.sh:
 | App | Key settings |
 |-----|-------------|
 | SpaceId | Launch on login, underline active monitor |
-| Rectangle | Alternate shortcuts, launch on login |
 | Flux | Denver area (39.62, -104.87), 2300K late / 6100K night |
 | CleanShot X | No desktop icons, license: `YOUR_CLEANSHOT_LICENSE` |
 | MeetingBar | macOS Calendar, Google Meet default |
@@ -411,7 +406,6 @@ The `.zshrc` automatically sources `~/.secrets` if it exists.
 | Hammerspoon | Launch from Applications (login item) |
 | Karabiner-Elements | Launch from Applications (login item) |
 | SpaceId | Launch from Applications (login item) |
-| Rectangle | Launch from Applications (login item) |
 | Alfred 5 | Launch from Applications (login item) |
 | Wispr Flow | Launch from Applications (login item) |
 | CleanShot X | Launch from Applications (login item) |
@@ -443,7 +437,7 @@ These cannot be automated and must be done after running `setup.sh`:
 - [ ] Set Alfred hotkey to Ctrl+D, clipboard history to Ctrl+C, terminal to iTerm
 - [ ] Activate CleanShot X license (`YOUR_CLEANSHOT_LICENSE`)
 - [ ] Sign in to Wispr Flow with Google, verify keyboard shortcuts
-- [ ] Grant **accessibility** permissions: skhd, yabai, Hammerspoon, Alfred, Rectangle, iTerm2
+- [ ] Grant **accessibility** permissions: skhd, yabai, Hammerspoon, Alfred, iTerm2
 - [ ] Grant **screen recording** permissions: Chrome, iTerm2, Slack, Discord, Teams, Zoom, Arc, CleanShot X
 - [ ] Sign in to: 1Password, Dropbox, Google Drive, OneDrive, Slack, Discord, Notion, Superhuman, Linear, Tailscale
 - [ ] Run `gh auth login`, `gcloud auth login`, `gt auth`
