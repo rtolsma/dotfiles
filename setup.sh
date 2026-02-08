@@ -75,8 +75,8 @@ if [ ! -f "$HOME/.git-prompt.sh" ]; then
     curl -sfo "$HOME/.git-prompt.sh" https://raw.githubusercontent.com/git/git/master/contrib/completion/git-prompt.sh
 fi
 
-# Copy dotfiles (not symlink -- these contain machine-specific paths)
-for f in .zshrc .zprofile .zshenv .gitconfig .vimrc .yabairc .yabai-focus.sh .skhdrc; do
+# Link dotfiles
+for f in .zshrc .zprofile .zshenv .gitconfig .vimrc .yabairc .yabai-focus.sh .skhdrc .tool-versions .python-version; do
     if [ -f "$DOTFILES_DIR/$f" ]; then
         link_dotfile "$DOTFILES_DIR/$f" "$HOME/$f"
     fi
@@ -91,12 +91,73 @@ mkdir -p "$HOME/.config/gh"
 mkdir -p "$HOME/.config/jj"
 mkdir -p "$HOME/.config/karabiner"
 mkdir -p "$HOME/.claude"
+mkdir -p "$HOME/.ssh"
 
 [ -f "$DOTFILES_DIR/config/git/ignore" ] && cp "$DOTFILES_DIR/config/git/ignore" "$HOME/.config/git/ignore"
 [ -f "$DOTFILES_DIR/config/gh/config.yml" ] && cp "$DOTFILES_DIR/config/gh/config.yml" "$HOME/.config/gh/config.yml"
 [ -f "$DOTFILES_DIR/config/jj/config.toml" ] && cp "$DOTFILES_DIR/config/jj/config.toml" "$HOME/.config/jj/config.toml"
 [ -f "$DOTFILES_DIR/config/karabiner/karabiner.json" ] && cp "$DOTFILES_DIR/config/karabiner/karabiner.json" "$HOME/.config/karabiner/karabiner.json"
 [ -f "$DOTFILES_DIR/config/claude/settings.json" ] && cp "$DOTFILES_DIR/config/claude/settings.json" "$HOME/.claude/settings.json"
+[ -f "$DOTFILES_DIR/config/ssh/config" ] && cp "$DOTFILES_DIR/config/ssh/config" "$HOME/.ssh/config"
+
+# Secrets template
+if [ ! -f "$HOME/.secrets" ]; then
+    echo "  Copying .secrets.template -> ~/.secrets (fill in your keys)"
+    cp "$DOTFILES_DIR/.secrets.template" "$HOME/.secrets"
+    chmod 600 "$HOME/.secrets"
+fi
+
+# ------------------------------------------------------------------
+# 4b. Editor configurations (Cursor + VS Code)
+# ------------------------------------------------------------------
+echo "--- Step 4b: Editor configs ---"
+
+# Cursor
+CURSOR_USER_DIR="$HOME/Library/Application Support/Cursor/User"
+mkdir -p "$CURSOR_USER_DIR"
+[ -f "$DOTFILES_DIR/config/cursor/settings.json" ] && cp "$DOTFILES_DIR/config/cursor/settings.json" "$CURSOR_USER_DIR/settings.json"
+[ -f "$DOTFILES_DIR/config/cursor/keybindings.json" ] && cp "$DOTFILES_DIR/config/cursor/keybindings.json" "$CURSOR_USER_DIR/keybindings.json"
+
+# Cursor MCP config
+mkdir -p "$HOME/.cursor"
+[ -f "$DOTFILES_DIR/config/cursor/mcp.json" ] && cp "$DOTFILES_DIR/config/cursor/mcp.json" "$HOME/.cursor/mcp.json"
+
+# VS Code
+VSCODE_USER_DIR="$HOME/Library/Application Support/Code/User"
+mkdir -p "$VSCODE_USER_DIR"
+[ -f "$DOTFILES_DIR/config/vscode/settings.json" ] && cp "$DOTFILES_DIR/config/vscode/settings.json" "$VSCODE_USER_DIR/settings.json"
+
+# ------------------------------------------------------------------
+# 4c. Fonts
+# ------------------------------------------------------------------
+echo "--- Step 4c: Fonts ---"
+mkdir -p "$HOME/Library/Fonts"
+if [ -d "$DOTFILES_DIR/fonts" ]; then
+    cp "$DOTFILES_DIR/fonts/"*.otf "$HOME/Library/Fonts/" 2>/dev/null || true
+    echo "  Fonts installed."
+fi
+
+# ------------------------------------------------------------------
+# 4d. iTerm2 preferences
+# ------------------------------------------------------------------
+echo "--- Step 4d: iTerm2 preferences ---"
+if [ -f "$DOTFILES_DIR/config/iterm2/com.googlecode.iterm2.plist" ]; then
+    defaults import com.googlecode.iterm2 "$DOTFILES_DIR/config/iterm2/com.googlecode.iterm2.plist"
+    echo "  iTerm2 preferences imported."
+fi
+
+# ------------------------------------------------------------------
+# 4e. Alfred preferences
+# ------------------------------------------------------------------
+echo "--- Step 4e: Alfred preferences ---"
+ALFRED_SUPPORT="$HOME/Library/Application Support/Alfred"
+if [ -d "$DOTFILES_DIR/config/alfred/Alfred.alfredpreferences" ]; then
+    mkdir -p "$ALFRED_SUPPORT"
+    cp -R "$DOTFILES_DIR/config/alfred/Alfred.alfredpreferences" "$ALFRED_SUPPORT/"
+    [ -f "$DOTFILES_DIR/config/alfred/prefs.json" ] && cp "$DOTFILES_DIR/config/alfred/prefs.json" "$ALFRED_SUPPORT/"
+    echo "  Alfred preferences deployed."
+    echo "  MANUAL: Activate Powerpack license (key: T0WDJ9C6DC)"
+fi
 
 # ------------------------------------------------------------------
 # 5. Version managers
@@ -209,6 +270,14 @@ defaults write NSGlobalDomain AppleShowScrollBars -string "Automatic"
 defaults write NSGlobalDomain AppleMiniaturizeOnDoubleClick -bool false
 defaults write NSGlobalDomain NSQuitAlwaysKeepsWindows -bool true
 
+# --- Text Corrections ---
+defaults write NSGlobalDomain NSAutomaticSpellingCorrectionEnabled -bool false
+defaults write NSGlobalDomain NSAutomaticCapitalizationEnabled -bool false
+defaults write NSGlobalDomain NSAutomaticDashSubstitutionEnabled -bool false
+defaults write NSGlobalDomain NSAutomaticPeriodSubstitutionEnabled -bool false
+defaults write NSGlobalDomain NSAutomaticQuoteSubstitutionEnabled -bool false
+defaults write NSGlobalDomain WebAutomaticSpellingCorrectionEnabled -bool false
+
 # --- Dock ---
 defaults write com.apple.dock autohide -bool true
 defaults write com.apple.dock tilesize -int 56
@@ -241,6 +310,16 @@ defaults write com.apple.WindowManager EnableTiledWindowMargins -bool false
 
 # --- Accessibility ---
 defaults write com.apple.universalaccess reduceMotion -bool true
+
+# --- Hot Corners: all disabled ---
+defaults write com.apple.dock wvous-tl-corner -int 1
+defaults write com.apple.dock wvous-tr-corner -int 1
+defaults write com.apple.dock wvous-bl-corner -int 1
+defaults write com.apple.dock wvous-br-corner -int 1
+defaults write com.apple.dock wvous-tl-modifier -int 0
+defaults write com.apple.dock wvous-tr-modifier -int 0
+defaults write com.apple.dock wvous-bl-modifier -int 0
+defaults write com.apple.dock wvous-br-modifier -int 0
 
 # --- Keyboard Shortcuts: Ctrl+1-0 for desktops ---
 for i in $(seq 0 9); do
@@ -317,6 +396,73 @@ defaults write pl.maketheweb.cleanshotx SUAutomaticallyUpdate -bool false
 defaults write pl.maketheweb.cleanshotx SUEnableAutomaticChecks -bool false
 
 # ------------------------------------------------------------------
+# 10c. Energy settings
+# ------------------------------------------------------------------
+echo "--- Step 10c: Energy settings ---"
+sudo pmset -b displaysleep 3 sleep 1 disksleep 10 2>/dev/null || echo "  (skipped -- needs sudo)"
+sudo pmset -c displaysleep 10 sleep 1 disksleep 10 2>/dev/null || echo "  (skipped -- needs sudo)"
+
+# ------------------------------------------------------------------
+# 10d. Dock apps
+# ------------------------------------------------------------------
+echo "--- Step 10d: Dock apps ---"
+if command -v dockutil &>/dev/null; then
+    dockutil --remove all --no-restart 2>/dev/null || true
+    dockutil --add "/Applications/Arc.app" --no-restart 2>/dev/null || true
+    dockutil --add "/System/Applications/Messages.app" --no-restart 2>/dev/null || true
+    dockutil --add "/Applications/Superhuman.app" --no-restart 2>/dev/null || true
+    dockutil --add "/Applications/Slack.app" --no-restart 2>/dev/null || true
+    dockutil --add "/Applications/Cursor.app" --no-restart 2>/dev/null || true
+    dockutil --add "/Applications/iTerm.app" --no-restart 2>/dev/null || true
+    dockutil --add "/Applications/Notion.app" --no-restart 2>/dev/null || true
+    dockutil --add "/Applications/Spotify.app" --no-restart 2>/dev/null || true
+    dockutil --add "/System/Applications/Calendar.app" --no-restart 2>/dev/null || true
+    dockutil --add "/System/Applications/System Settings.app" --no-restart 2>/dev/null || true
+    dockutil --add "/System/Applications/Reminders.app" --no-restart 2>/dev/null || true
+    dockutil --add "/Applications/ChatGPT.app" --no-restart 2>/dev/null || true
+    killall Dock 2>/dev/null || true
+    echo "  Dock configured."
+else
+    echo "  dockutil not found, skipping dock setup."
+fi
+
+# ------------------------------------------------------------------
+# 10e. Login items
+# ------------------------------------------------------------------
+echo "--- Step 10e: Login items ---"
+LOGIN_APPS=(
+    "Dropbox"
+    "MeetingBar"
+    "Notion"
+    "SpaceId"
+    "Superhuman"
+    "CleanShot X"
+    "OrbStack"
+    "Alfred 5"
+    "Hammerspoon"
+    "Flux"
+    "Graphite"
+    "1Password"
+    "Tailscale"
+)
+for app in "${LOGIN_APPS[@]}"; do
+    osascript -e "tell application \"System Events\" to make login item at end with properties {path:\"/Applications/${app}.app\", hidden:false}" 2>/dev/null || true
+done
+echo "  Login items configured."
+
+# ------------------------------------------------------------------
+# 10f. Wallpaper
+# ------------------------------------------------------------------
+echo "--- Step 10f: Wallpaper ---"
+WALLPAPER_DIR="$HOME/Pictures/Wallpapers"
+mkdir -p "$WALLPAPER_DIR"
+if [ -f "$DOTFILES_DIR/wallpapers/Riverside by ArseniXC.heic" ]; then
+    cp "$DOTFILES_DIR/wallpapers/Riverside by ArseniXC.heic" "$WALLPAPER_DIR/"
+    osascript -e "tell application \"System Events\" to tell every desktop to set picture to \"$WALLPAPER_DIR/Riverside by ArseniXC.heic\"" 2>/dev/null || true
+    echo "  Wallpaper set."
+fi
+
+# ------------------------------------------------------------------
 # 11. Editor extensions
 # ------------------------------------------------------------------
 echo "--- Step 11: Editor extensions ---"
@@ -328,36 +474,78 @@ if command -v cursor &>/dev/null; then
     cursor --install-extension batisteo.vscode-django 2>/dev/null || true
     cursor --install-extension bdavs.expect 2>/dev/null || true
     cursor --install-extension coderabbit.coderabbit-vscode 2>/dev/null || true
+    cursor --install-extension cognition.devin 2>/dev/null || true
+    cursor --install-extension coscreen-inc.coscreen-vsc-extension 2>/dev/null || true
+    cursor --install-extension cweijan.dbclient-jdbc 2>/dev/null || true
+    cursor --install-extension cweijan.vscode-mysql-client2 2>/dev/null || true
     cursor --install-extension davidanson.vscode-markdownlint 2>/dev/null || true
     cursor --install-extension dbaeumer.vscode-eslint 2>/dev/null || true
     cursor --install-extension denoland.vscode-deno 2>/dev/null || true
     cursor --install-extension donjayamanne.githistory 2>/dev/null || true
+    cursor --install-extension donjayamanne.python-environment-manager 2>/dev/null || true
     cursor --install-extension donjayamanne.python-extension-pack 2>/dev/null || true
     cursor --install-extension github.vscode-github-actions 2>/dev/null || true
+    cursor --install-extension grapecity.gc-excelviewer 2>/dev/null || true
     cursor --install-extension hashicorp.terraform 2>/dev/null || true
+    cursor --install-extension idleberg.applescript 2>/dev/null || true
+    cursor --install-extension idleberg.jxa 2>/dev/null || true
     cursor --install-extension jock.svg 2>/dev/null || true
+    cursor --install-extension kevinrose.vsc-python-indent 2>/dev/null || true
+    cursor --install-extension marimo-team.vscode-marimo 2>/dev/null || true
+    cursor --install-extension mechatroner.rainbow-csv 2>/dev/null || true
+    cursor --install-extension mermaidchart.vscode-mermaid-chart 2>/dev/null || true
     cursor --install-extension mk12.better-git-line-blame 2>/dev/null || true
     cursor --install-extension ms-azuretools.vscode-docker 2>/dev/null || true
+    cursor --install-extension ms-mssql.data-workspace-vscode 2>/dev/null || true
+    cursor --install-extension ms-mssql.mssql 2>/dev/null || true
+    cursor --install-extension ms-mssql.sql-bindings-vscode 2>/dev/null || true
+    cursor --install-extension ms-mssql.sql-database-projects-vscode 2>/dev/null || true
     cursor --install-extension ms-playwright.playwright 2>/dev/null || true
     cursor --install-extension ms-python.black-formatter 2>/dev/null || true
+    cursor --install-extension ms-python.debugpy 2>/dev/null || true
     cursor --install-extension ms-python.python 2>/dev/null || true
     cursor --install-extension ms-toolsai.jupyter 2>/dev/null || true
+    cursor --install-extension ms-toolsai.jupyter-keymap 2>/dev/null || true
+    cursor --install-extension ms-toolsai.jupyter-renderers 2>/dev/null || true
+    cursor --install-extension ms-toolsai.vscode-jupyter-cell-tags 2>/dev/null || true
+    cursor --install-extension ms-toolsai.vscode-jupyter-slideshow 2>/dev/null || true
     cursor --install-extension ms-vscode-remote.remote-containers 2>/dev/null || true
+    cursor --install-extension ms-vsliveshare.vsliveshare 2>/dev/null || true
+    cursor --install-extension njpwerner.autodocstring 2>/dev/null || true
+    cursor --install-extension openai.openai-chatgpt-adhoc 2>/dev/null || true
+    cursor --install-extension sinclair.react-developer-tools 2>/dev/null || true
     cursor --install-extension supabase.postgrestools 2>/dev/null || true
     cursor --install-extension tamasfe.even-better-toml 2>/dev/null || true
+    cursor --install-extension tomoki1207.pdf 2>/dev/null || true
+    cursor --install-extension visualstudioexptteam.intellicode-api-usage-examples 2>/dev/null || true
+    cursor --install-extension visualstudioexptteam.vscodeintellicode 2>/dev/null || true
     cursor --install-extension vscodevim.vim 2>/dev/null || true
+    cursor --install-extension wholroyd.jinja 2>/dev/null || true
+    cursor --install-extension withfig.fig 2>/dev/null || true
 fi
 
 if command -v code &>/dev/null; then
     echo "  Installing VS Code extensions..."
+    code --install-extension bdavs.expect 2>/dev/null || true
+    code --install-extension DavidAnson.vscode-markdownlint 2>/dev/null || true
+    code --install-extension denoland.vscode-deno 2>/dev/null || true
+    code --install-extension donjayamanne.githistory 2>/dev/null || true
     code --install-extension GitHub.copilot 2>/dev/null || true
     code --install-extension GitHub.copilot-chat 2>/dev/null || true
+    code --install-extension idleberg.applescript 2>/dev/null || true
+    code --install-extension jock.svg 2>/dev/null || true
+    code --install-extension ms-azuretools.vscode-docker 2>/dev/null || true
+    code --install-extension ms-python.black-formatter 2>/dev/null || true
     code --install-extension ms-python.python 2>/dev/null || true
     code --install-extension ms-python.vscode-pylance 2>/dev/null || true
     code --install-extension ms-toolsai.jupyter 2>/dev/null || true
+    code --install-extension ms-toolsai.jupyter-keymap 2>/dev/null || true
+    code --install-extension ms-toolsai.jupyter-renderers 2>/dev/null || true
+    code --install-extension ms-toolsai.vscode-jupyter-cell-tags 2>/dev/null || true
+    code --install-extension ms-toolsai.vscode-jupyter-slideshow 2>/dev/null || true
+    code --install-extension ms-vscode-remote.remote-containers 2>/dev/null || true
     code --install-extension vscodevim.vim 2>/dev/null || true
-    code --install-extension denoland.vscode-deno 2>/dev/null || true
-    code --install-extension ms-azuretools.vscode-docker 2>/dev/null || true
+    code --install-extension withfig.fig 2>/dev/null || true
 fi
 
 # ------------------------------------------------------------------
@@ -371,27 +559,26 @@ if [ ! -f "$HOME/.ssh/id_ed25519" ]; then
 fi
 
 # ------------------------------------------------------------------
-# 13. Secrets reminder
+# 13. Final reminders
 # ------------------------------------------------------------------
 echo ""
 echo "--- MANUAL: Remaining setup ---"
-echo "1. Create ~/.secrets with API keys (OPENAI_API_KEY, GEMINI_API_KEY, etc.)"
+echo "1. Fill in ~/.secrets with API keys (see .secrets.template)"
 echo "2. Run: gh auth login"
 echo "3. Run: gcloud auth login"
 echo "4. Set up Modal: edit ~/.modal.toml"
 echo "5. Set up Graphite: gt auth"
-echo "6. Install non-Homebrew apps (see README.md section 16)"
-echo "7. Alfred 5: Install, activate Powerpack license, set hotkey to Ctrl+D,"
-echo "   clipboard history to Ctrl+C, terminal to iTerm, theme to Modern Dark"
-echo "8. Wispr Flow: Install, sign in with Google, verify keyboard shortcuts"
-echo "   (Cmd=push-to-talk, Opt+Cmd=POPO, Ctrl+Cmd=Lens, Shift+Cmd+Tab=paste)"
-echo "9. CleanShot X: Install, activate license key"
-echo "10. MeetingBar: Install from App Store, set calendar to macOS Calendar,"
-echo "    default meeting service to Google Meet"
-echo "11. Create 12 desktops: Mission Control > click '+' until you have 12"
-echo "12. Verify trackpad/keyboard shortcuts applied correctly in System Settings"
-echo "13. Set apps to open at login: Hammerspoon, Karabiner, SpaceId, Rectangle,"
-echo "    Alfred, Wispr Flow, CleanShot X, MeetingBar, Flux, 1Password, Tailscale, Rewind"
-echo "14. Install browser extensions: Vimium, Toucan, Adblock, Bitwarden"
+echo "6. Alfred: activate Powerpack license (T0WDJ9C6DC), set hotkey Ctrl+D,"
+echo "   clipboard history Ctrl+C, terminal to iTerm, theme Modern Dark"
+echo "7. CleanShot X: activate license (XTTBRHQR-YNLGHDZS-ZDKKTDHG-ZZJKPCQD)"
+echo "8. Wispr Flow: sign in with Google, verify keyboard shortcuts"
+echo "9. Create 12 desktops: Mission Control > click '+' until you have 12"
+echo "10. Grant accessibility permissions (System Settings > Privacy):"
+echo "    skhd, yabai, Hammerspoon, Alfred, Rectangle, Homerow, iTerm2"
+echo "11. Grant screen recording permissions:"
+echo "    Chrome, iTerm2, Slack, Discord, Teams, Zoom, Arc, CleanShot X"
+echo "12. Sign in to: 1Password, Dropbox, Google Drive, OneDrive,"
+echo "    Slack, Discord, Notion, Superhuman, Linear, Tailscale"
+echo "13. Install browser extensions: Vimium, Toucan, Adblock, Bitwarden"
 echo ""
 echo "=== Setup complete ==="

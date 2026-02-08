@@ -2,7 +2,24 @@
 
 This document contains everything needed to replicate Ryan's Mac environment on a fresh Apple Silicon Mac. It is written so that an AI coding agent (e.g. Claude Code) can read it and execute the setup steps programmatically.
 
-**Source machine:** Apple Silicon (arm64), macOS Tahoe 26.x, default shell zsh.
+**Source machine:** Apple Silicon (M2 Max, arm64), macOS Tahoe 26.x, default shell zsh.
+
+---
+
+## Quick Start
+
+```bash
+# Clone this repo
+git clone https://github.com/rtolsma/dotfiles.git ~/Git/dotfiles
+cd ~/Git/dotfiles
+
+# Run the setup script (idempotent -- safe to re-run)
+bash setup.sh
+```
+
+The script handles: Xcode CLT, Homebrew, all packages (Brewfile), shell configs, version managers, editor configs, fonts, iTerm2/Alfred preferences, macOS defaults, dock setup, login items, wallpaper, and editor extensions.
+
+After the script completes, follow the manual steps printed at the end (license activations, account sign-ins, privacy permissions).
 
 ---
 
@@ -23,11 +40,13 @@ This document contains everything needed to replicate Ryan's Mac environment on 
 13. [Editor Setup (Cursor + VS Code)](#13-editor-setup)
 14. [Claude Code](#14-claude-code)
 15. [macOS System Preferences](#15-macos-system-preferences)
-16. [Applications (non-Homebrew)](#16-applications-non-homebrew)
-17. [Browser Extensions](#17-browser-extensions)
-18. [Secrets & API Keys](#18-secrets--api-keys)
-19. [Services & Launch Agents](#19-services--launch-agents)
-20. [SSH Keys](#20-ssh-keys)
+16. [Fonts](#16-fonts)
+17. [Dock & Login Items](#17-dock--login-items)
+18. [Browser Extensions](#18-browser-extensions)
+19. [Secrets & API Keys](#19-secrets--api-keys)
+20. [Services & Launch Agents](#20-services--launch-agents)
+21. [SSH Keys](#21-ssh-keys)
+22. [Manual Post-Setup Checklist](#22-manual-post-setup-checklist)
 
 ---
 
@@ -46,74 +65,19 @@ eval "$(/opt/homebrew/bin/brew shellenv)"
 
 ## 2. Homebrew + Packages
 
-### Taps
+All packages are declared in `Brewfile`. Install everything at once:
 
 ```bash
-brew tap gromgit/fuse
-brew tap hashicorp/tap
-brew tap homebrew/services
-brew tap keith/formulae
-brew tap koekeishiya/formulae
-brew tap microsoft/mssql-release
-brew tap ngrok/ngrok
-brew tap popcorn-official/popcorn-desktop
-brew tap steipete/tap
-brew tap supabase/tap
-brew tap tw93/tap
-brew tap withgraphite/tap
+brew bundle --file=Brewfile --no-lock
 ```
 
-### Formulae (CLI tools & libraries)
+### What's in the Brewfile
 
-Use `brew bundle --file=Brewfile` to install everything at once (see `Brewfile` in this repo), or install individually:
+**Taps (13):** gromgit/fuse, hashicorp/tap, homebrew/services, keith/formulae, koekeishiya/formulae, microsoft/mssql-release, ngrok/ngrok, popcorn-official/popcorn-desktop, sheeki03/tap, steipete/tap, supabase/tap, tw93/tap, withgraphite/tap
 
-**Core dev tools:**
-```bash
-brew install git git-lfs gh jj graphite just lefthook pre-commit ripgrep shellcheck jq curl wget tree htop ncdu ranger
-```
+**Formulae (~80):** Core dev tools (git, gh, jj, graphite, ripgrep, jq, etc.), languages (go, node, deno, python 3.10-3.14, openjdk), package managers (pnpm, pipx, poetry, uv, maven, mas), infrastructure (awscli, azure-cli, terraform, docker, supabase), databases (postgresql@16, dbmate, mssql tools), AI/ML (openai-whisper, pytorch, gemini-cli, bird, peekaboo, sag, summarize), media (ffmpeg, imagemagick, pandoc), window management (yabai, skhd, dockutil), and more.
 
-**Languages & runtimes:**
-```bash
-brew install deno go node openjdk openjdk@21 python@3.12 python@3.13 python@3.14 llvm@20
-```
-
-**Package managers:**
-```bash
-brew install pnpm pipx poetry uv maven
-```
-
-**Infrastructure & cloud:**
-```bash
-brew install awscli azure-cli terraform packer supabase act actionlint docker
-brew install postgresql@16
-brew install nmap openconnect rclone
-```
-
-**AI / ML:**
-```bash
-brew install openai-whisper pytorch gemini-cli
-```
-
-**Media:**
-```bash
-brew install ffmpeg imagemagick tesseract pandoc
-```
-
-**Window management:**
-```bash
-brew install yabai skhd
-```
-
-**Other notable:**
-```bash
-brew install ast-grep dbmate himalaya signal-cli semgrep trivy swagger-codegen openapi-generator mole
-```
-
-### Casks (GUI apps)
-
-```bash
-brew install --cask anaconda basictex cursor docker docker-desktop fuse ghostty hammerspoon iterm2 karabiner-elements macfuse ngrok orbstack spaceid spotify upscayl vlc
-```
+**Casks (~50):** Nearly all GUI apps are installed via Homebrew casks, including: dev tools (cursor, visual-studio-code, ghostty, iterm2, orbstack, docker-desktop), system tools (hammerspoon, karabiner-elements, rectangle, spaceid, alfred, cleanshot, flux), browsers (arc, google-chrome), communication (slack, discord, signal, whatsapp, zoom), productivity (notion, superhuman, linear-linear, anki), AI (chatgpt, claude, ollama), media (spotify, vlc), security (1password, bitwarden, tailscale), and more.
 
 ### Start services
 
@@ -129,127 +93,17 @@ yabai --start-service
 
 **Default shell:** `/bin/zsh`
 
-### ~/.zshenv
+Files managed by this repo (symlinked to `~` by setup.sh):
 
-```bash
-. "$HOME/.cargo/env"
-```
+| File | Purpose |
+|------|---------|
+| `.zshenv` | Cargo env (sourced before .zprofile) |
+| `.zprofile` | Brew, asdf completions, pipx PATH, OrbStack |
+| `.zshrc` | History, prompt, aliases, conda, paths, secrets |
 
-### ~/.zprofile
+Key aliases: `c` = claude, `j` = just, `gg` = cd to ~/Git/, `r` = ranger, `codex` / `gemini` with permissive flags.
 
-```bash
-# Brew
-eval "$(/opt/homebrew/bin/brew shellenv)"
-
-fpath=(${ASDF_DIR}/completions $fpath) # Asdf completions
-fpath=($HOMEBREW_PREFIX/share/zsh/site-functions $fpath) # just completions
-autoload -Uz compinit && compinit
-
-# Created by `pipx` on 2023-09-03 09:28:06
-export PATH="$PATH:/Users/ryan/.local/bin"
-
-# Added by OrbStack: command-line tools and integration
-source ~/.orbstack/shell/init.zsh 2>/dev/null || :
-```
-
-### ~/.zshrc
-
-```bash
-export HISTFILESIZE=100000000
-export HISTSIZE=100000000
-export HISTFILE=~/.zsh_history
-export SAVEHIST=$HISTSIZE
-
-setopt INC_APPEND_HISTORY
-setopt HIST_FIND_NO_DUPS
-
-fpath=(~/.zsh $fpath)
-
-# Git Prompt Completion
-source ~/.git-prompt.sh
-setopt PROMPT_SUBST ; PS1='[%n@%m %c$(__git_ps1 " (%s)")]\$ '
-
-# Aliases
-alias cd..="cd .."
-alias up="cd .."
-alias gg="cd /Users/ryan/Git/"
-alias r="ranger"
-alias rr="rye run"
-
-# >>> conda initialize (lazy-loaded) >>>
-conda() {
-    unfunction conda
-    eval "$('/opt/homebrew/anaconda3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
-    conda "$@"
-}
-# <<< conda initialize <<<
-
-# Homebrew
-eval "$(brew shellenv)"
-fpath=($HOMEBREW_PREFIX/share/zsh/site-functions $fpath)
-
-aug() { cd ~/Git/august${1:+$1}; }
-cs() { cd ~/Git/august${1:+$1}/caesar; }
-
-rcm() {
-	cd ~/Git/august/apps/rcm-portal;
-}
-am() {
-	git add --all;
-	git commit --amend;
-}
-ybr() {
-	yabai --stop-service
-	yabai --start-service
-}
-
-alias j="just"
-alias c="claude --dangerously-skip-permissions"
-alias codex="codex -a never -s danger-full-access"
-alias gemini="gemini --yolo"
-
-test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
-
-# Created by `pipx` on 2023-09-03 09:28:06
-export PATH="$PATH:/Users/ryan/.local/bin"
-
-# NOTE: API keys are stored separately -- see "Secrets & API Keys" section
-# export OPENAI_API_KEY='...'
-# export GEMINI_API_KEY='...'
-# export OAGI_API_KEY='...'
-# export OAGI_BASE_URL=https://api.agiopen.org
-
-# Browser-Use
-export ANONYMIZED_TELEMETRY=false
-
-unset DYLD_LIBRARY_PATH
-
-# Path finalizers
-# Asdf
-. "$HOME/.asdf/asdf.sh"
-# Rye
-. "$HOME/.rye/env"
-# Cargo
-. "$HOME/.cargo/env"
-
-# Google Cloud SDK
-if [ -f '/Users/ryan/google-cloud-sdk/path.zsh.inc' ]; then . '/Users/ryan/google-cloud-sdk/path.zsh.inc'; fi
-if [ -f '/Users/ryan/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/ryan/google-cloud-sdk/completion.zsh.inc'; fi
-
-# bun completions
-[ -s "/Users/ryan/.bun/_bun" ] && source "/Users/ryan/.bun/_bun"
-
-# bun
-export BUN_INSTALL="$HOME/.bun"
-export PATH="$BUN_INSTALL/bin:$PATH"
-```
-
-### ~/.git-prompt.sh
-
-This is the standard git prompt script from the git project. Download it:
-```bash
-curl -o ~/.git-prompt.sh https://raw.githubusercontent.com/git/git/master/contrib/completion/git-prompt.sh
-```
+Secrets are loaded from `~/.secrets` (see section 19).
 
 ---
 
@@ -257,35 +111,9 @@ curl -o ~/.git-prompt.sh https://raw.githubusercontent.com/git/git/master/contri
 
 ### ~/.gitconfig
 
-```ini
-[user]
-	name = Ryan Tolsma
-	email = 1tolsmar@gmail.com
-
-[alias]
-	co = checkout
-	s = status
-	ri = rebase -i
-	rc = rebase --continue
-	pf = push --force-with-lease
-	b = branch
-	l = log
-
-[fetch]
-	prune = true
-[submodule]
-	recurse = true
-
-[http]
-	postBuffer = 1572864000
-[init]
-	defaultBranch = main
-[filter "lfs"]
-	clean = git-lfs clean -- %f
-	smudge = git-lfs smudge -- %f
-	process = git-lfs filter-process
-	required = true
-```
+- User: Ryan Tolsma <1tolsmar@gmail.com>
+- Aliases: co, s, ri, rc, pf, b, l
+- fetch.prune, submodule.recurse, init.defaultBranch=main, Git LFS
 
 ### ~/.config/git/ignore
 
@@ -295,47 +123,25 @@ curl -o ~/.git-prompt.sh https://raw.githubusercontent.com/git/git/master/contri
 
 ### ~/.config/gh/config.yml
 
-```yaml
-git_protocol: https
-editor:
-prompt: enabled
-pager:
-aliases:
-    co: pr checkout
-http_unix_socket:
-browser:
-version: "1"
-```
+- Protocol: HTTPS, aliases: `co = pr checkout`
 
-### ~/.config/jj/config.toml (Jujutsu VCS)
+### ~/.config/jj/config.toml
 
-```toml
-#:schema https://docs.jj-vcs.dev/latest/config-schema.json
-
-[user]
-name = "rtolsma"
-email = "1tolsmar@gmail.com"
-```
+- Jujutsu VCS user config
 
 ---
 
 ## 5. Version Managers
 
-### asdf
-
-```bash
-git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.14.0
-# Add to shell (already in .zshrc): . "$HOME/.asdf/asdf.sh"
-
-asdf plugin add ruby
-asdf plugin add nodejs
-
-asdf install ruby 3.2.2
-asdf install nodejs 22.12.0
-
-asdf global ruby 3.2.2
-asdf global nodejs 22.12.0
-```
+| Tool | Versions | Install method |
+|------|----------|---------------|
+| asdf | ruby 3.2.2, nodejs 22.12.0 | git clone v0.14.0 |
+| Rust | 1.72.1 | rustup |
+| Rye | latest | curl installer |
+| Bun | latest | curl installer |
+| Conda | via Anaconda cask | lazy-loaded in .zshrc |
+| uv | via brew | |
+| Google Cloud SDK | latest | manual install |
 
 ### ~/.tool-versions
 
@@ -344,56 +150,10 @@ ruby 3.2.2
 nodejs 22.12.0
 ```
 
-### ~/.python-version
-
-```
-3.12.5
-```
-
-### Rye (Python)
-
-```bash
-curl -sSf https://rye.astral.sh/get | bash
-# Adds: . "$HOME/.rye/env" (already in .zshrc)
-```
-
-### Rust / Cargo
-
-```bash
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-# Adds: . "$HOME/.cargo/env" (already in .zshrc/.zshenv)
-# Installed: rustc 1.72.1
-```
-
-### Bun
-
-```bash
-curl -fsSL https://bun.sh/install | bash
-# Adds BUN_INSTALL and completions (already in .zshrc)
-```
-
-### Conda (via Anaconda cask)
-
-Lazy-loaded in .zshrc. Installed via `brew install --cask anaconda`.
-
-### uv (Python)
-
-```bash
-# Already installed via brew: brew install uv
-```
-
 ### Global npm packages
 
 ```bash
-npm install -g @openai/codex cursor-tools happy-coder pnpm pyright
-```
-
-### Google Cloud SDK
-
-```bash
-curl https://sdk.cloud.google.com | bash
-# Or download from https://cloud.google.com/sdk/docs/install
-# Adds path.zsh.inc and completion.zsh.inc (already in .zshrc)
+npm install -g @openai/codex cursor-tools happy-coder pnpm pyright @anthropic-ai/claude-code
 ```
 
 ---
@@ -402,154 +162,33 @@ curl https://sdk.cloud.google.com | bash
 
 ### ~/.yabairc
 
-```bash
-#!/usr/bin/env sh
-
-yabai -m signal --add event=dock_did_restart action="sudo yabai --load-sa"
-sudo yabai --load-sa
-
-# bar settings
-yabai -m config top_padding 0
-
-# global settings
-yabai -m config mouse_follows_focus          on
-yabai -m config focus_follows_mouse          off
-
-yabai -m config window_placement             second_child
-yabai -m config window_topmost               off
-
-yabai -m config window_opacity               off
-yabai -m config window_opacity_duration      0.0
-yabai -m config window_shadow                on
-
-yabai -m config active_window_opacity        1.0
-yabai -m config normal_window_opacity        0.90
-yabai -m config split_ratio                  0.50
-yabai -m config auto_balance                 off
-
-# Mouse support
-yabai -m config mouse_modifier               alt
-yabai -m config mouse_action1                move
-yabai -m config mouse_action2                resize
-
-# general space settings
-yabai -m config layout                       bsp
-yabai -m config bottom_padding               -5
-yabai -m config left_padding                 0
-yabai -m config right_padding                0
-yabai -m config window_gap                   0
-
-# float system preferences
-yabai -m rule --add app='^System Information$' manage=off
-yabai -m rule --add app='^System Preferences$' manage=off
-yabai -m rule --add title='Preferences$' manage=off
-yabai -m rule --add title='Settings$' manage=off
-
-# focus window after active space changes
-yabai -m signal --add event=space_changed action="~/.yabai-focus.sh "
-yabai -m signal --add event=display_changed action="~/.yabai-focus.sh"
-```
-
-### ~/.yabai-focus.sh
-
-```bash
-#!/bin/bash
-set +e
-
-CURR_DISPLAY=$(yabai -m query --displays --display | jq '.id' | head -n 1)
-TARGET_DISPLAY=${1:-$CURR_DISPLAY}
-
-VISIBLE_WINDOW_ID=$(yabai -m query --windows --display $TARGET_DISPLAY  | jq 'sort_by(.stack_index) | .[] | select(.["is-visible"] == true and .["is-hidden"] == false and .["is-minimized"] == false and .["subrole"] == "AXStandardWindow" and .["layer"] == "normal") | .id' | head -n 1)
-
-if [ ! -z "$VISIBLE_WINDOW_ID" ]; then
-    yabai -m window --focus $VISIBLE_WINDOW_ID
-else
-    echo "No visible window found on display $TARGET_DISPLAY"
-fi
-```
-
-Make executable: `chmod +x ~/.yabai-focus.sh`
+BSP tiling layout, mouse follows focus, inactive window opacity 90%, no gaps/padding, float system preferences windows. Signals trigger `~/.yabai-focus.sh` on space/display change.
 
 ### ~/.skhdrc
 
-```bash
-# change focus on displays...
-alt - h : yabai -m display --focus 2 || $( yabai -m query --displays --display | jq '.id' | ~/.yabai-focus.sh )
-alt - l : yabai -m display --focus 1 || $( yabai -m query --displays --display | jq '.id' | ~/.yabai-focus.sh )
+| Shortcut | Action |
+|----------|--------|
+| Alt+H/L | Switch displays |
+| Alt+J/K | Focus west/east window |
+| Alt+Shift+J/K/N/P | Swap/move windows |
+| Alt+Ctrl+J/K/N/P | Set insertion point |
+| Alt+F | Focus recent window |
+| Alt+Shift+1-0 | Move window to space 1-10 |
+| Alt+Shift+X/Y | Mirror display |
+| Alt+Shift+U | Balance windows |
+| Alt+E | Toggle BSP layout |
+| Alt+W | Toggle stack layout |
+| Alt+I/O | Cycle stack windows |
 
-# change focus within display
-alt - j : yabai -m window --focus west
-alt - k : yabai -m window --focus east
-
-# shift window in current workspace
-alt + shift - j : yabai -m window --swap west || $(yabai -m window --display west; yabai -m display --focus west)
-alt + shift - k : yabai -m window --swap east || $(yabai -m window --display east; yabai -m display --focus east)
-alt + shift - n : yabai -m window --swap south || $(yabai -m window --display south; yabai -m display --focus south)
-alt + shift - p : yabai -m window --swap north || $(yabai -m window --display north; yabai -m display --focus north)
-
-# set insertion point in focused container
-alt + ctrl - j : yabai -m window --insert west
-alt + ctrl - n : yabai -m window --insert south
-alt + ctrl - p : yabai -m window --insert north
-alt + ctrl - k : yabai -m window --insert east
-
-# go back to previous workspace
-alt - f : yabai -m window --focus recent
-
-# move focused window to previous workspace
-alt + shift - f : yabai -m window --space recent; \
-
-# move focused window to workspace N
-alt + shift - 1 : yabai -m window --space 1
-alt + shift - 2 : yabai -m window --space 2
-alt + shift - 3 : yabai -m window --space 3
-alt + shift - 4 : yabai -m window --space 4
-alt + shift - 5 : yabai -m window --space 5
-alt + shift - 6 : yabai -m window --space 6
-alt + shift - 7 : yabai -m window --space 7
-alt + shift - 8 : yabai -m window --space 8
-alt + shift - 9 : yabai -m window --space 9
-alt + shift - 0 : yabai -m window --space 10
-
-# mirror tree y-axis
-alt + shift - y : yabai -m space --mirror y-axis
-
-# mirror tree x-axis
-alt + shift - x: yabai -m space --mirror x-axis
-
-# balance size of windows
-alt + shift - u : yabai -m space --balance
-
-# change layout of desktop
-alt - e : yabai -m space --layout bsp || yabai -m space --mirror y-axis
-alt - w : yabai -m space --layout stack
-
-# cycle through stack windows
-alt - i : yabai -m window --focus stack.next || yabai -m window --focus south
-alt - o : yabai -m window --focus stack.prev || yabai -m window --focus north
-```
-
-### yabai scripting addition (required)
+### yabai scripting addition
 
 ```bash
-# Allow yabai to load the scripting addition without password
 echo "$(whoami) ALL=(root) NOPASSWD: sha256:$(shasum -a 256 $(which yabai) | cut -d " " -f 1) $(which yabai) --load-sa" | sudo tee /private/etc/sudoers.d/yabai
 ```
 
-### Rectangle (supplementary window management)
+### Rectangle
 
-Rectangle provides keyboard-driven window snapping alongside yabai. Install via direct download or App Store.
-
-Settings to configure after install:
-```bash
-# Enable alternate shortcuts mode and launch on login
-defaults write com.knollsoft.Rectangle alternateDefaultShortcuts -bool true
-defaults write com.knollsoft.Rectangle launchOnLogin -bool true
-defaults write com.knollsoft.Rectangle subsequentExecutionMode -int 1
-
-# Disable auto-updates (manual preferred)
-defaults write com.knollsoft.Rectangle SUEnableAutomaticChecks -bool false
-```
+Supplementary window snapping. Configured via defaults: alternate shortcuts, launch on login.
 
 ---
 
@@ -557,45 +196,7 @@ defaults write com.knollsoft.Rectangle SUEnableAutomaticChecks -bool false
 
 ### ~/.config/karabiner/karabiner.json
 
-Caps Lock is remapped to Left Option globally:
-
-```json
-{
-    "profiles": [
-        {
-            "devices": [
-                {
-                    "identifiers": {
-                        "is_keyboard": true,
-                        "is_pointing_device": true,
-                        "product_id": 45913,
-                        "vendor_id": 1133
-                    },
-                    "ignore": false,
-                    "simple_modifications": [
-                        {
-                            "from": { "key_code": "caps_lock" },
-                            "to": [{ "key_code": "left_option" }]
-                        }
-                    ]
-                }
-            ],
-            "name": "Default profile",
-            "selected": true,
-            "simple_modifications": [
-                {
-                    "from": { "key_code": "caps_lock" },
-                    "to": [{ "key_code": "left_option" }]
-                }
-            ],
-            "virtual_hid_keyboard": {
-                "country_code": 0,
-                "keyboard_type_v2": "ansi"
-            }
-        }
-    ]
-}
-```
+Caps Lock is remapped to Left Option globally and per-device (vendor_id 1133, product_id 45913).
 
 ---
 
@@ -603,17 +204,7 @@ Caps Lock is remapped to Left Option globally:
 
 ### ~/.hammerspoon/init.lua
 
-```lua
-require("hs.ipc")
-stackline = require "stackline"
-stackline:init({
-	paths = {
-		yabai = "/opt/homebrew/bin/yabai"
-	}
-})
-```
-
-**stackline** is a yabai companion that shows visual stack indicators. Clone it into the Hammerspoon config:
+Loads **stackline** (yabai window stack indicator) with yabai path at `/opt/homebrew/bin/yabai`.
 
 ```bash
 git clone https://github.com/AdamWagworski/stackline.git ~/.hammerspoon/stackline
@@ -623,72 +214,26 @@ git clone https://github.com/AdamWagworski/stackline.git ~/.hammerspoon/stacklin
 
 ## 9. Alfred 5
 
-Alfred is the primary launcher (replaces Spotlight). **Powerpack license required** (licensed under key `T0WDJ9C6DC`).
+Primary launcher (replaces Spotlight). **Powerpack license: `T0WDJ9C6DC`**.
 
-Install: Download from [alfredapp.com](https://www.alfredapp.com/).
+Alfred preferences are stored in `config/alfred/` and deployed by setup.sh.
 
-### Key settings to configure
+### Key settings to verify after install
 
 | Setting | Value |
 |---------|-------|
-| Hotkey | **Ctrl+D** (opens Alfred) |
+| Hotkey | **Ctrl+D** |
 | Clipboard History hotkey | **Ctrl+C** |
 | Theme | Modern Dark |
-| Terminal integration | **iTerm** (not Terminal.app) |
-| Default meeting service | Google Meet |
-| Clipboard history | Enabled (3s persistence) |
-| Show contacts | Disabled |
-| Show documents | Enabled |
-| Show folders | Enabled |
-
-### iTerm integration
-
-Alfred is configured to send terminal commands to iTerm instead of Terminal.app. This is set in:
-**Alfred Preferences > Features > Terminal > Application: Custom** with an AppleScript that targets iTerm.
-
-### Bookmarks / web searches
-
-Default web searches are configured with quick-access URLs for Wikipedia, YouTube, Twitter, Apple, BBC News, and Alfred help.
-
-### Alfred preferences location
-
-All Alfred config lives in:
-```
-~/Library/Application Support/Alfred/Alfred.alfredpreferences/
-```
-
-After installing Alfred on the new machine:
-1. Activate Powerpack license
-2. Set hotkey to Ctrl+D
-3. Set clipboard history hotkey to Ctrl+C
-4. Change terminal to iTerm (Preferences > Features > Terminal)
-5. Set theme to Modern Dark
-6. Enable clipboard history
+| Terminal integration | **iTerm** |
 
 ---
 
 ## 10. Wispr Flow
 
-Wispr Flow is a voice-to-text dictation tool. **Pro yearly subscription** (renewal: 2026-12-07).
+Voice-to-text dictation tool. **Pro yearly subscription** (renewal: 2026-12-07).
 
-Install: Download from [wisprflow.com](https://www.wisprflow.com/). Sign in with Google (1tolsmar@gmail.com).
-
-### Key settings to configure
-
-| Setting | Value |
-|---------|-------|
-| Theme | Light |
-| Open at login | Yes |
-| Microphone audio muting | Enabled |
-| Streaming audio | Disabled |
-| Auto-learn words | Enabled |
-| OCR screen capture | Disabled |
-| Sounds | Enabled |
-| Share usage data | No |
-| Auto polish | Disabled |
-| Experimental model | Disabled |
-| Tone match | Disabled |
-| Haptics | Disabled |
+Install via `brew install --cask wispr-flow`. Sign in with Google (1tolsmar@gmail.com).
 
 ### Keyboard shortcuts
 
@@ -699,100 +244,21 @@ Install: Download from [wisprflow.com](https://www.wisprflow.com/). Sign in with
 | Ctrl+Cmd | Lens |
 | Shift+Cmd+Tab | Paste last text |
 
-### Polish instructions (AI text refinement)
-
-All enabled:
-- Make more concise
-- Reword for clarity
-- Reorder for readability
-- Add structure for readability
-- Maintain tone
-
-### Configuration location
-
-Main config: `~/Library/Application Support/Wispr Flow/config.json`
-
-Most settings sync via Google account login. After installing on the new machine, sign in and verify the keyboard shortcuts above are set.
-
 ---
 
 ## 11. Menubar & Utility Apps
 
-### SpaceId
+All configured via `defaults write` in setup.sh:
 
-Shows the current macOS Space number in the menu bar. Essential for yabai workflow.
-
-Install: `brew install --cask spaceid`
-
-```bash
-defaults write com.dshnkao.SpaceId launchOnLogin -bool true
-defaults write com.dshnkao.SpaceId underlineActiveMonitor -bool true
-defaults write com.dshnkao.SpaceId colorPref -int 1
-defaults write com.dshnkao.SpaceId iconPref -int 1
-```
-
-### MeetingBar
-
-Shows upcoming calendar meetings in the menu bar with one-click join.
-
-Install: App Store (version 4.10.0).
-
-Settings to configure after install:
-- Event store provider: **macOS Calendar App**
-- Default meeting service: **Google Meet**
-- Event title length in menu bar: 15 characters
-- Event time format: show
-- Join event notification: 3 minutes before (180s)
-- Select relevant calendars after linking
-
-### Flux (f.lux)
-
-Blue light filter. Install: Download from [justgetflux.com](https://justgetflux.com/).
-
-```bash
-# Location: Denver area
-defaults write org.herf.Flux location "39.623700,-104.873800"
-defaults write org.herf.Flux locationTextField -int 10019
-defaults write org.herf.Flux locationType -string "L"
-
-# Color temperatures
-defaults write org.herf.Flux lateColorTemp -int 2300
-defaults write org.herf.Flux nightColorTemp -int 6100
-
-# Wake time: 8:00 AM (480 minutes from midnight)
-defaults write org.herf.Flux wakeTime -int 480
-```
-
-### CleanShot X
-
-Screenshot and screen recording tool. **Licensed** (key: `XTTBRHQR-YNLGHDZS-ZDKKTDHG-ZZJKPCQD`).
-
-Install: Download from [cleanshot.com](https://cleanshot.com/).
-
-Settings to configure after install:
-- Capture without desktop icons: Enabled
-- Delete popup after dragging: Enabled
-- History capacity: 4
-- Analytics: Disabled
-- Auto-update: Disabled
-- Annotation tools: draw, text, rectangle, arrow, filled rectangle, ellipse
-
-### Tailscale
-
-VPN mesh network. Install: App Store.
-
-```bash
-# Tailscale starts on login and maintains state across restarts
-# Configuration syncs via Tailscale account -- just sign in
-```
-
-### 1Password
-
-Password manager. Install: Download from [1password.com](https://1password.com/).
-
-Settings to configure:
-- Browser extension integration (Safari + Arc/Chrome)
-- Sign in to vault after install
+| App | Key settings |
+|-----|-------------|
+| SpaceId | Launch on login, underline active monitor |
+| Rectangle | Alternate shortcuts, launch on login |
+| Flux | Denver area (39.62, -104.87), 2300K late / 6100K night |
+| CleanShot X | No desktop icons, license: `XTTBRHQR-YNLGHDZS-ZDKKTDHG-ZZJKPCQD` |
+| MeetingBar | macOS Calendar, Google Meet default |
+| Tailscale | Sign in to sync config |
+| 1Password | Sign in to vault, enable browser extensions |
 
 ---
 
@@ -800,194 +266,29 @@ Settings to configure:
 
 ### ~/.vimrc
 
-```vim
-" Fix clipboard timeout on macOS
-set clipboard=exclude:.*
+- Theme: solarized8_flat (light background)
+- Default: tabs; C++/JS: 2-space; Python/Markdown: 4-space
+- Key remaps: jj=Esc, ;=:, H/L=tabs, J/K=8-line jumps, Space=leader
 
-set background=light
-colorscheme solarized8_flat
-
-au BufNewFile,BufRead *.go set filetype=go
-au BufNewFile,BufRead *.md set filetype=markdown
-
-command! Tabs set noexpandtab tabstop=4 shiftwidth=4
-command! Spaces2 set expandtab softtabstop=2 shiftwidth=2
-command! Spaces4 set expandtab softtabstop=4 shiftwidth=4
-command! Spaces8 set expandtab softtabstop=2 shiftwidth=8
-command! Tabs8 set tabstop==2 shiftwidth=8
-
-Tabs
-au Filetype cpp Spaces2
-au Filetype javascript,javascript.jsx Spaces2
-au Filetype python,markdown Spaces4
-
-syntax on
-
-set lazyredraw
-set showmatch
-set hlsearch
-
-set directory^=/tmp//
-
-filetype plugin indent on
-set autoindent
-set smartindent
-
-set number
-
-set ignorecase
-set smartcase
-set scrolloff=10
-
-" Disable mouse to prevent clipboard timeout
-set showcmd
-
-set completeopt=preview
-
-" Performance optimizations
-set ttyfast
-set regexpengine=1
-set synmaxcol=200
-set updatetime=300
-set redrawtime=10000
-
-nmap <space> <leader>
-vmap <space> <leader>
-
-inoremap jj <esc>
-inoremap jJ <esc>
-inoremap Jj <esc>
-inoremap JJ <esc>
-
-nnoremap ; :
-vnoremap ; :
-nnoremap <leader>w J
-vnoremap <leader>a :w !xclip -sel clip<enter><enter>
-
-nnoremap H gT
-nnoremap L gt
-nnoremap <C-h> H
-nnoremap <C-l> L
-
-nnoremap j gj
-nnoremap k gk
-vnoremap j gj
-vnoremap k gk
-
-nnoremap gj j
-nnoremap gk k
-vnoremap gj j
-vnoremap gk k
-
-nnoremap J 8gj
-nnoremap K 8gk
-vnoremap J 8gj
-vnoremap K 8gk
-
-nnoremap gJ 8j
-nnoremap gK 8k
-vnoremap gJ 8j
-vnoremap gK 8k
-
-nnoremap <cr> o<esc>
-nnoremap <C-a> <nop>
-nnoremap <C-x> <nop>
-```
-
-**Vim color scheme:** Install solarized8:
-```bash
-mkdir -p ~/.vim/pack/themes/opt
-git clone https://github.com/lifepillar/vim-solarized8.git ~/.vim/pack/themes/opt/solarized8
-```
+Color scheme installed by setup.sh from [vim-solarized8](https://github.com/lifepillar/vim-solarized8).
 
 ---
 
 ## 13. Editor Setup
 
-### Cursor (primary editor)
+### Cursor (primary)
 
-Extensions:
-```bash
-cursor --install-extension anthropic.claude-code
-cursor --install-extension anysphere.cursorpyright
-cursor --install-extension batisteo.vscode-django
-cursor --install-extension bdavs.expect
-cursor --install-extension coderabbit.coderabbit-vscode
-cursor --install-extension cognition.devin
-cursor --install-extension coscreen-inc.coscreen-vsc-extension
-cursor --install-extension cweijan.dbclient-jdbc
-cursor --install-extension cweijan.vscode-mysql-client2
-cursor --install-extension davidanson.vscode-markdownlint
-cursor --install-extension dbaeumer.vscode-eslint
-cursor --install-extension denoland.vscode-deno
-cursor --install-extension donjayamanne.githistory
-cursor --install-extension donjayamanne.python-environment-manager
-cursor --install-extension donjayamanne.python-extension-pack
-cursor --install-extension github.vscode-github-actions
-cursor --install-extension grapecity.gc-excelviewer
-cursor --install-extension hashicorp.terraform
-cursor --install-extension idleberg.applescript
-cursor --install-extension idleberg.jxa
-cursor --install-extension jock.svg
-cursor --install-extension kevinrose.vsc-python-indent
-cursor --install-extension marimo-team.vscode-marimo
-cursor --install-extension mechatroner.rainbow-csv
-cursor --install-extension mermaidchart.vscode-mermaid-chart
-cursor --install-extension mk12.better-git-line-blame
-cursor --install-extension ms-azuretools.vscode-docker
-cursor --install-extension ms-mssql.data-workspace-vscode
-cursor --install-extension ms-mssql.mssql
-cursor --install-extension ms-mssql.sql-bindings-vscode
-cursor --install-extension ms-mssql.sql-database-projects-vscode
-cursor --install-extension ms-playwright.playwright
-cursor --install-extension ms-python.black-formatter
-cursor --install-extension ms-python.debugpy
-cursor --install-extension ms-python.python
-cursor --install-extension ms-toolsai.jupyter
-cursor --install-extension ms-toolsai.jupyter-keymap
-cursor --install-extension ms-toolsai.jupyter-renderers
-cursor --install-extension ms-toolsai.vscode-jupyter-cell-tags
-cursor --install-extension ms-toolsai.vscode-jupyter-slideshow
-cursor --install-extension ms-vscode-remote.remote-containers
-cursor --install-extension ms-vsliveshare.vsliveshare
-cursor --install-extension njpwerner.autodocstring
-cursor --install-extension openai.openai-chatgpt-adhoc
-cursor --install-extension sinclair.react-developer-tools
-cursor --install-extension supabase.postgrestools
-cursor --install-extension tamasfe.even-better-toml
-cursor --install-extension tomoki1207.pdf
-cursor --install-extension visualstudioexptteam.intellicode-api-usage-examples
-cursor --install-extension visualstudioexptteam.vscodeintellicode
-cursor --install-extension vscodevim.vim
-cursor --install-extension wholroyd.jinja
-cursor --install-extension withfig.fig
-```
+Settings, keybindings, and MCP config are stored in `config/cursor/` and deployed by setup.sh.
+
+**51 extensions** installed automatically (see setup.sh step 11).
+
+Key settings: vim mode with .vimrc, partial accepts, Playwright reuse browser, CodeRabbit prompt mode.
 
 ### VS Code (secondary)
 
-Extensions:
-```bash
-code --install-extension bdavs.expect
-code --install-extension DavidAnson.vscode-markdownlint
-code --install-extension denoland.vscode-deno
-code --install-extension donjayamanne.githistory
-code --install-extension GitHub.copilot
-code --install-extension GitHub.copilot-chat
-code --install-extension idleberg.applescript
-code --install-extension jock.svg
-code --install-extension ms-azuretools.vscode-docker
-code --install-extension ms-python.black-formatter
-code --install-extension ms-python.python
-code --install-extension ms-python.vscode-pylance
-code --install-extension ms-toolsai.jupyter
-code --install-extension ms-toolsai.jupyter-keymap
-code --install-extension ms-toolsai.jupyter-renderers
-code --install-extension ms-toolsai.vscode-jupyter-cell-tags
-code --install-extension ms-toolsai.vscode-jupyter-slideshow
-code --install-extension ms-vscode-remote.remote-containers
-code --install-extension vscodevim.vim
-code --install-extension withfig.fig
-```
+Settings stored in `config/vscode/settings.json`. **20 extensions** installed automatically.
+
+Key difference from Cursor: `editor.formatOnSave: true`, GitHub Copilot instead of Cursor AI.
 
 ---
 
@@ -995,21 +296,8 @@ code --install-extension withfig.fig
 
 ### ~/.claude/settings.json
 
-```json
-{
-  "enabledPlugins": {
-    "pg@aiguide": true,
-    "playwright@claude-plugins-official": true,
-    "document-skills@anthropic-agent-skills": true,
-    "frontend-design@claude-plugins-official": true,
-    "ralph-wiggum@claude-plugins-official": true,
-    "pr-review-toolkit@claude-plugins-official": true,
-    "ralph-loop@claude-plugins-official": true
-  }
-}
-```
+Plugins: pg@aiguide, playwright, document-skills, frontend-design, ralph-wiggum, pr-review-toolkit, ralph-loop.
 
-Install Claude Code:
 ```bash
 npm install -g @anthropic-ai/claude-code
 ```
@@ -1018,272 +306,66 @@ npm install -g @anthropic-ai/claude-code
 
 ## 15. macOS System Preferences
 
-All settings below differ from macOS defaults. Run these `defaults write` commands to replicate.
+All set via `defaults write` in setup.sh. Key non-default settings:
 
-### Keyboard & input
+### Keyboard & Input
+- Fast key repeat: InitialKeyRepeat=15, KeyRepeat=2
+- Mouse/trackpad tracking: 2.5 speed
+- Tap-to-click: OFF, two-finger right-click: ON
 
-```bash
-# Fast key repeat (InitialKeyRepeat=15 is ~225ms, KeyRepeat=2 is ~30ms)
-defaults write NSGlobalDomain InitialKeyRepeat -int 15
-defaults write NSGlobalDomain KeyRepeat -int 2
+### Text Corrections (all disabled)
+- Auto-correct, auto-capitalize, smart quotes, smart dashes, auto-period: OFF
 
-# Mouse: fast tracking speed (2.5), double-click threshold relaxed
-defaults write NSGlobalDomain "com.apple.mouse.scaling" -float 2.5
-defaults write NSGlobalDomain "com.apple.mouse.doubleClickThreshold" -float 1.1
-
-# Trackpad: fast tracking speed (2.5), natural scrolling ON, force click ON
-defaults write NSGlobalDomain "com.apple.trackpad.scaling" -float 2.5
-defaults write NSGlobalDomain "com.apple.swipescrolldirection" -bool true
-defaults write NSGlobalDomain "com.apple.trackpad.forceClick" -bool true
-
-# Scroll wheel: moderate speed
-defaults write NSGlobalDomain "com.apple.scrollwheel.scaling" -float 0.5
-
-# Trackpad: tap-to-click OFF (physical click), two-finger right-click ON
-defaults write com.apple.AppleMultitouchTrackpad Clicking -int 0
-defaults write com.apple.AppleMultitouchTrackpad TrackpadRightClick -int 1
-defaults write com.apple.AppleMultitouchTrackpad TrackpadThreeFingerDrag -int 0
-defaults write com.apple.AppleMultitouchTrackpad TrackpadMomentumScroll -int 1
-
-# Mouse: OneButton mode
-defaults write com.apple.AppleMultitouchMouse MouseButtonMode -string "OneButton"
-```
-
-### Keyboard shortcuts (symbolichotkeys)
-
-**Desktop switching via Ctrl+1 through Ctrl+0** is enabled for all 10 desktops. Most other Mission Control keyboard shortcuts are **disabled** (yabai/skhd handles window management instead). All built-in screenshot shortcuts are **disabled** (CleanShot X is used instead).
-
-```bash
-# Enable Ctrl+1 through Ctrl+0 for desktop switching
-# Keys 118-127 map to Switch to Desktop 1-10
-# Each entry: enabled=1, modifier=262144 (Ctrl), keycode=18-29 (1-0 keys)
-for i in {0..9}; do
-    id=$((118 + i))
-    keycode=$((18 + i))
-    # Key 0 is keycode 29
-    if [ $i -eq 9 ]; then keycode=29; fi
-    defaults write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add "$id" "
-        <dict>
-            <key>enabled</key><true/>
-            <key>value</key><dict>
-                <key>parameters</key>
-                <array>
-                    <integer>65535</integer>
-                    <integer>$keycode</integer>
-                    <integer>262144</integer>
-                </array>
-                <key>type</key><string>standard</string>
-            </dict>
-        </dict>"
-done
-
-# Disable built-in screenshot shortcuts (using CleanShot X instead)
-for id in 28 29 30 31 184; do
-    defaults write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add "$id" "
-        <dict><key>enabled</key><false/></dict>"
-done
-
-# Disable Mission Control / Spaces keyboard shortcuts (using yabai/skhd)
-for id in 15 16 17 18 19 20 21 22 23 24 25 26; do
-    defaults write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add "$id" "
-        <dict><key>enabled</key><false/></dict>"
-done
-
-# Disable Dock hiding shortcut (Cmd+Option+D)
-defaults write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add "52" "
-    <dict><key>enabled</key><false/></dict>"
-
-# Keep Spotlight at Cmd+Space (enabled, ID 32 -- this is default)
-```
-
-### Appearance & animations
-
-```bash
-# Light mode (default -- no AppleInterfaceStyle key needed)
-# Accent/highlight color: system default multicolor (no override needed)
-
-# Disable window opening/closing animations
-defaults write NSGlobalDomain NSAutomaticWindowAnimationsEnabled -bool false
-
-# Near-instant window resize (default is 0.2)
-defaults write NSGlobalDomain NSWindowResizeTime -float 0.001
-
-# Disable UI sounds
-defaults write NSGlobalDomain "com.apple.sound.uiaudio.enabled" -bool false
-
-# Beep volume at ~45%
-defaults write NSGlobalDomain "com.apple.sound.beep.volume" -float 0.4536978
-
-# Flash screen on beep: OFF
-defaults write NSGlobalDomain "com.apple.sound.beep.flash" -bool false
-
-# Scrollbars: automatic
-defaults write NSGlobalDomain AppleShowScrollBars -string "Automatic"
-
-# Double-click title bar does NOT minimize
-defaults write NSGlobalDomain AppleMiniaturizeOnDoubleClick -bool false
-
-# Resume windows on relaunch
-defaults write NSGlobalDomain NSQuitAlwaysKeepsWindows -bool true
-```
+### Appearance
+- Light mode, no window animations, instant resize
+- UI sounds: OFF, reduce motion: ON
 
 ### Dock
-
-```bash
-defaults write com.apple.dock autohide -bool true
-defaults write com.apple.dock tilesize -int 56
-defaults write com.apple.dock magnification -bool false
-defaults write com.apple.dock mru-spaces -bool false
-
-# Apply
-killall Dock
-```
-
-**Dock pinned apps (left to right):** Launchpad, Arc, Messages, Superhuman, Slack, Cursor, iTerm, Notion, Spotify, Calendar, System Settings, Reminders, ChatGPT. **Right side:** Downloads folder (stack, sorted by date added).
+- Auto-hide: ON, tile size: 56, no magnification, no MRU spaces
 
 ### Finder
+- Show hidden files, list view default, no empty trash warning
 
-```bash
-# Show hidden files
-defaults write com.apple.finder AppleShowAllFiles -bool true
+### Window Manager
+- Stage Manager: OFF, click desktop: OFF, no tiled margins
 
-# Default to list view
-defaults write com.apple.finder FXPreferredViewStyle -string "Nlsv"
+### Keyboard Shortcuts
+- Ctrl+1-0: switch desktops 1-10
+- Built-in screenshot shortcuts: disabled (CleanShot X)
+- Mission Control shortcuts: disabled (yabai/skhd)
 
-# Show external drives & removable media on desktop, hide internal drives
-defaults write com.apple.finder ShowExternalHardDrivesOnDesktop -bool true
-defaults write com.apple.finder ShowHardDrivesOnDesktop -bool false
-defaults write com.apple.finder ShowRemovableMediaOnDesktop -bool true
+### Hot Corners
+- All disabled
 
-# No warning when emptying trash
-defaults write com.apple.finder WarnOnEmptyTrash -bool false
-
-# Sidebar shown, status bar hidden
-defaults write com.apple.finder ShowSidebar -bool true
-defaults write com.apple.finder ShowStatusBar -bool false
-
-# Apply
-killall Finder
-```
-
-### Clock & menu bar
-
-```bash
-# 12-hour, show AM/PM, show day of week, hide date
-defaults write com.apple.menuextra.clock ShowAMPM -bool true
-defaults write com.apple.menuextra.clock ShowDate -int 0
-defaults write com.apple.menuextra.clock ShowDayOfWeek -bool true
-
-# Hide Siri from menu bar
-defaults write com.apple.Siri StatusMenuVisible -bool false
-
-# Hide text input menu from menu bar
-defaults write com.apple.TextInputMenu visible -bool false
-```
-
-### Window Manager / Spaces
-
-```bash
-# Stage Manager OFF
-defaults write com.apple.WindowManager GloballyEnabled -bool false
-
-# Click desktop does NOT show desktop
-defaults write com.apple.WindowManager EnableStandardClickToShowDesktop -bool false
-
-# No margins between tiled windows
-defaults write com.apple.WindowManager EnableTiledWindowMargins -bool false
-```
-
-### Accessibility
-
-```bash
-# Reduce motion ON (reduces parallax, auto-play, etc.)
-defaults write com.apple.universalaccess reduceMotion -bool true
-```
-
-### Siri
-
-```bash
-# Siri not on lock screen, not in menu bar, but "Hey Siri" is enabled
-defaults write com.apple.Siri LockscreenEnabled -bool false
-defaults write com.apple.Siri StatusMenuVisible -bool false
-defaults write com.apple.Siri VoiceTriggerUserEnabled -bool true
-```
-
-### Text replacements
-
-```bash
-# "omw" -> "On my way!"
-defaults write NSGlobalDomain NSUserDictionaryReplacementItems -array \
-    '{ on = 1; replace = omw; with = "On my way!"; }'
-```
-
-### Spaces / Desktops
-
-Create **12 desktops** on the primary display. This must be done manually:
-- Open Mission Control (swipe up with 4 fingers or Ctrl+Up)
-- Click "+" in the top-right to add desktops until you have 12
-
-### Manual settings to verify
-
-These can't be fully set via `defaults write` -- verify in System Settings after running the script:
-
-- **Trackpad:** Physical click (tap-to-click OFF), two-finger right-click ON, momentum scrolling ON
-- **Mouse:** Natural scrolling ON, tracking speed near max
-- **Keyboard > Shortcuts > Mission Control:** Ctrl+1 through Ctrl+0 for desktops 1-10
-- **Control Center:** Battery, Bluetooth, WiFi, Focus Modes, Clock visible; Screen Mirroring in menu bar
-- **Spaces:** 12 desktops created, "Automatically rearrange" OFF
+### Energy
+- Battery: 3 min display, 1 min sleep
+- AC: 10 min display, 1 min sleep
 
 ---
 
-## 16. Applications (non-Homebrew)
+## 16. Fonts
 
-These apps are installed outside of Homebrew (App Store, direct download, etc.):
-
-| App | Source | Notes |
-|-----|--------|-------|
-| Arc | Direct download | Primary browser |
-| 1Password | Direct download | Password manager |
-| Alfred 5 | Direct download | Launcher (alt-d hotkey) |
-| Anki | Direct download | Flashcards |
-| Bitwarden | Direct download | Backup password manager |
-| ChatGPT | Direct download | OpenAI desktop app |
-| Claude | Direct download | Anthropic desktop app |
-| CleanShot X | Direct download | Screenshot tool |
-| Comet | Direct download | |
-| CoScreen | Direct download | Screen sharing |
-| Cryptomator | Direct download | Encryption |
-| Discord | Direct download | Chat |
-| Dropbox | Direct download | File sync |
-| Dynalist | Direct download | Outliner |
-| Flux | Direct download | Blue light filter |
-| Google Chrome | Direct download | Secondary browser |
-| Graphite | Direct download | Stacked PRs |
-| Linear | Direct download | Project management |
-| MeetingBar | Direct download | Calendar in menu bar |
-| Microsoft Excel | Direct download / Office | |
-| Microsoft Outlook | Direct download / Office | |
-| Microsoft Word | Direct download / Office | |
-| Microsoft Teams | Direct download / Office | |
-| Microsoft PowerPoint | Direct download / Office | |
-| Notion | Direct download | Notes/wiki |
-| Ollama | Direct download | Local LLM runner |
-| OneDrive | Direct download | Cloud storage |
-| Parallels Desktop | Direct download | VM |
-| Private Internet Access | Direct download | VPN |
-| Rewind | Direct download | AI recall |
-| Signal | Direct download | Messaging |
-| Slack | Direct download | Team chat |
-| Steam | Direct download | Games |
-| Superhuman | Direct download | Email client |
-| TablePlus | Direct download | Database GUI |
-| Tailscale | Direct download | VPN mesh |
-| Wispr Flow | Direct download | Voice-to-text |
-| Zoom | Direct download | Video calls |
+**TWK Lausanne** — full variable weight family (50-1000 in 50-step increments, each with italic variant). 40 .otf files stored in `fonts/` and installed to `~/Library/Fonts/` by setup.sh.
 
 ---
 
-## 17. Browser Extensions
+## 17. Dock & Login Items
+
+### Dock (automated via dockutil)
+
+Left to right: Arc, Messages, Superhuman, Slack, Cursor, iTerm, Notion, Spotify, Calendar, System Settings, Reminders, ChatGPT.
+
+### Login Items (automated via osascript)
+
+Dropbox, MeetingBar, Notion, SpaceId, Superhuman, CleanShot X, OrbStack, Alfred 5, Hammerspoon, Flux, Graphite, 1Password, Tailscale.
+
+### Wallpaper
+
+`wallpapers/Riverside by ArseniXC.heic` — set automatically by setup.sh.
+
+---
+
+## 18. Browser Extensions
 
 ### Arc / Chrome
 
@@ -1294,68 +376,112 @@ These apps are installed outside of Homebrew (App Store, direct download, etc.):
 
 ---
 
-## 18. Secrets & API Keys
+## 19. Secrets & API Keys
 
-**DO NOT commit these.** On the new machine, set these environment variables (e.g. in a `~/.secrets` file sourced from `.zshrc`):
+**DO NOT commit real keys.** A template is provided at `.secrets.template`.
 
+On the new machine:
 ```bash
-# ~/.secrets (chmod 600)
-export OPENAI_API_KEY='...'
-export GEMINI_API_KEY='...'
-export OAGI_API_KEY='...'
-export OAGI_BASE_URL=https://api.agiopen.org
+cp .secrets.template ~/.secrets
+chmod 600 ~/.secrets
+# Edit ~/.secrets and fill in your values
 ```
 
-Then add to `.zshrc`:
-```bash
-[ -f ~/.secrets ] && source ~/.secrets
-```
+The `.zshrc` automatically sources `~/.secrets` if it exists.
 
-Other credentials to set up:
-- `gh auth login` -- GitHub CLI
-- `gcloud auth login` -- Google Cloud
-- `~/.modal.toml` -- Modal.com tokens
-- `~/.config/graphite/user_config` -- Graphite auth token
-- `~/.config/rclone/rclone.conf` -- Google Drive OAuth (run `rclone config`)
-- `~/.config/marimo/marimo.toml` -- OpenAI key for marimo
+### Other credentials to set up
+
+| Service | Command |
+|---------|---------|
+| GitHub CLI | `gh auth login` |
+| Google Cloud | `gcloud auth login` |
+| Modal | edit `~/.modal.toml` |
+| Graphite | `gt auth` |
+| rclone | `rclone config` (Google Drive OAuth) |
 
 ---
 
-## 19. Services & Launch Agents
-
-Active services:
+## 20. Services & Launch Agents
 
 | Service | How to start |
 |---------|-------------|
 | PostgreSQL 16 | `brew services start postgresql@16` |
 | yabai | `yabai --start-service` |
 | skhd | `skhd --start-service` |
-| Hammerspoon | Launch from Applications (set to open at login) |
-| Karabiner-Elements | Launch from Applications (set to open at login) |
-| SpaceId | Launch from Applications (set to open at login) |
-| Rectangle | Launch from Applications (set to open at login) |
-| Alfred 5 | Launch from Applications (set to open at login) |
-| Wispr Flow | Launch from Applications (set to open at login) |
-| CleanShot X | Launch from Applications (set to open at login) |
-| MeetingBar | Launch from Applications (set to open at login) |
-| Flux | Launch from Applications (set to open at login) |
-| 1Password | Launch from Applications (set to open at login) |
-| Tailscale | Launch from Applications (set to open at login) |
-| Rewind | Launch from Applications (set to open at login) |
+| Hammerspoon | Launch from Applications (login item) |
+| Karabiner-Elements | Launch from Applications (login item) |
+| SpaceId | Launch from Applications (login item) |
+| Rectangle | Launch from Applications (login item) |
+| Alfred 5 | Launch from Applications (login item) |
+| Wispr Flow | Launch from Applications (login item) |
+| CleanShot X | Launch from Applications (login item) |
+| MeetingBar | Launch from Applications (login item) |
+| Flux | Launch from Applications (login item) |
+| 1Password | Launch from Applications (login item) |
+| Tailscale | Launch from Applications (login item) |
 
 ---
 
-## 20. SSH Keys
-
-Generate new keys on the new machine:
+## 21. SSH Keys
 
 ```bash
 ssh-keygen -t ed25519 -C "1tolsmar@gmail.com"
-# Add to GitHub: https://github.com/settings/keys
 cat ~/.ssh/id_ed25519.pub | pbcopy
+# Add to GitHub: https://github.com/settings/keys
 ```
 
-The SSH config includes OrbStack integration:
+SSH config includes OrbStack integration (`Include ~/.orbstack/ssh/config`).
+
+---
+
+## 22. Manual Post-Setup Checklist
+
+These cannot be automated and must be done after running `setup.sh`:
+
+- [ ] Create 12 desktops in Mission Control
+- [ ] Activate Alfred Powerpack license (`T0WDJ9C6DC`)
+- [ ] Set Alfred hotkey to Ctrl+D, clipboard history to Ctrl+C, terminal to iTerm
+- [ ] Activate CleanShot X license (`XTTBRHQR-YNLGHDZS-ZDKKTDHG-ZZJKPCQD`)
+- [ ] Sign in to Wispr Flow with Google, verify keyboard shortcuts
+- [ ] Grant **accessibility** permissions: skhd, yabai, Hammerspoon, Alfred, Rectangle, iTerm2
+- [ ] Grant **screen recording** permissions: Chrome, iTerm2, Slack, Discord, Teams, Zoom, Arc, CleanShot X
+- [ ] Sign in to: 1Password, Dropbox, Google Drive, OneDrive, Slack, Discord, Notion, Superhuman, Linear, Tailscale
+- [ ] Run `gh auth login`, `gcloud auth login`, `gt auth`
+- [ ] Fill in `~/.secrets` with API keys
+- [ ] Generate SSH key and add to GitHub
+- [ ] Install browser extensions: Vimium, Toucan, Adblock, Bitwarden
+- [ ] Configure yabai scripting addition (see section 6)
+
+---
+
+## Repo Structure
+
 ```
-Include ~/.orbstack/ssh/config
+dotfiles/
+├── setup.sh                    # Main bootstrap script (idempotent)
+├── Brewfile                    # Homebrew packages & casks
+├── README.md                   # This file
+├── .secrets.template           # API key template
+├── .zshrc / .zprofile / .zshenv  # Shell configs
+├── .gitconfig                  # Git config
+├── .vimrc                      # Vim config
+├── .yabairc / .skhdrc / .yabai-focus.sh  # Window management
+├── .tool-versions              # asdf versions
+├── .python-version             # Python version
+├── config/
+│   ├── alfred/                 # Alfred preferences bundle
+│   ├── claude/settings.json    # Claude Code plugins
+│   ├── cursor/                 # Cursor settings, keybindings, MCP
+│   ├── gh/config.yml           # GitHub CLI
+│   ├── git/ignore              # Global gitignore
+│   ├── iterm2/                 # iTerm2 preferences plist
+│   ├── jj/config.toml          # Jujutsu VCS
+│   ├── karabiner/karabiner.json  # Keyboard remapping
+│   ├── ssh/config              # SSH config
+│   └── vscode/settings.json   # VS Code settings
+├── fonts/                      # TWK Lausanne (40 .otf files)
+├── wallpapers/                 # Desktop wallpaper
+├── .vim/colors/                # Vim color schemes
+├── .zsh/                       # Zsh completions
+└── .hammerspoon/               # Hammerspoon + stackline
 ```

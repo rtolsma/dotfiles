@@ -1,0 +1,11 @@
+{
+  "editor.accessibilitySupport": "off",
+  "editor.codeActionsOnSave": {},
+  "editor.formatOnSave": true,
+  "editor.inlineSuggest.enabled": true,
+  "vim.vimrc.enable": true,
+  "vim.vimrc.path": "$HOME/.vimrc",
+  "terminal.integrated.env.osx": {
+    "FIG_NEW_SESSION": "1"
+  }
+}
