@@ -156,7 +156,7 @@ if [ -d "$DOTFILES_DIR/config/alfred/Alfred.alfredpreferences" ]; then
     cp -R "$DOTFILES_DIR/config/alfred/Alfred.alfredpreferences" "$ALFRED_SUPPORT/"
     [ -f "$DOTFILES_DIR/config/alfred/prefs.json" ] && cp "$DOTFILES_DIR/config/alfred/prefs.json" "$ALFRED_SUPPORT/"
     echo "  Alfred preferences deployed."
-    echo "  MANUAL: Activate Powerpack license (key: T0WDJ9C6DC)"
+    echo "  MANUAL: Activate Powerpack license (key: YOUR_ALFRED_LICENSE)"
 fi
 
 # ------------------------------------------------------------------
@@ -568,9 +568,9 @@ echo "2. Run: gh auth login"
 echo "3. Run: gcloud auth login"
 echo "4. Set up Modal: edit ~/.modal.toml"
 echo "5. Set up Graphite: gt auth"
-echo "6. Alfred: activate Powerpack license (T0WDJ9C6DC), set hotkey Ctrl+D,"
+echo "6. Alfred: activate Powerpack license (YOUR_ALFRED_LICENSE), set hotkey Ctrl+D,"
 echo "   clipboard history Ctrl+C, terminal to iTerm, theme Modern Dark"
-echo "7. CleanShot X: activate license (XTTBRHQR-YNLGHDZS-ZDKKTDHG-ZZJKPCQD)"
+echo "7. CleanShot X: activate license (YOUR_CLEANSHOT_LICENSE)"
 echo "8. Wispr Flow: sign in with Google, verify keyboard shortcuts"
 echo "9. Create 12 desktops: Mission Control > click '+' until you have 12"
 echo "10. Grant accessibility permissions (System Settings > Privacy):"

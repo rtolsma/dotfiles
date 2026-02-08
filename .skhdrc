@@ -25,7 +25,7 @@ alt + ctrl - k : yabai -m window --insert east
 alt - f : yabai -m window --focus recent
 
 # move focused window to previous workspace
-alt + shift - f : yabai -m window --space recent; \
+alt + shift - f : yabai -m window --space recent
 
 #alt + shift - i : yabai -m space --focus prev      # move left
 #alt + shift - o : yabai -m space --focus next 	   # move right

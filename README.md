@@ -73,9 +73,9 @@ brew bundle --file=Brewfile --no-lock
 
 ### What's in the Brewfile
 
-**Taps (13):** gromgit/fuse, hashicorp/tap, homebrew/services, keith/formulae, koekeishiya/formulae, microsoft/mssql-release, ngrok/ngrok, popcorn-official/popcorn-desktop, sheeki03/tap, steipete/tap, supabase/tap, tw93/tap, withgraphite/tap
+**Taps (10):** gromgit/fuse, hashicorp/tap, keith/formulae, koekeishiya/formulae, microsoft/mssql-release, ngrok/ngrok, sheeki03/tap, supabase/tap, tw93/tap, withgraphite/tap
 
-**Formulae (~80):** Core dev tools (git, gh, jj, graphite, ripgrep, jq, etc.), languages (go, node, deno, python 3.10-3.14, openjdk), package managers (pnpm, pipx, poetry, uv, maven, mas), infrastructure (awscli, azure-cli, terraform, docker, supabase), databases (postgresql@16, dbmate, mssql tools), AI/ML (openai-whisper, pytorch, gemini-cli, bird, peekaboo, sag, summarize), media (ffmpeg, imagemagick, pandoc), window management (yabai, skhd, dockutil), and more.
+**Formulae (~80):** Core dev tools (git, gh, jj, graphite, ripgrep, jq, etc.), languages (go, node, deno, python 3.10-3.14, openjdk), package managers (pnpm, pipx, poetry, uv, maven, mas), infrastructure (awscli, azure-cli, terraform, docker, supabase), databases (postgresql@16, dbmate, mssql tools), AI/ML (openai-whisper, pytorch, gemini-cli, peekaboo, sag, summarize), media (ffmpeg, imagemagick, pandoc), window management (yabai, skhd, dockutil), and more.
 
 **Casks (~50):** Nearly all GUI apps are installed via Homebrew casks, including: dev tools (cursor, visual-studio-code, ghostty, iterm2, orbstack, docker-desktop), system tools (hammerspoon, karabiner-elements, rectangle, spaceid, alfred, cleanshot, flux), browsers (arc, google-chrome), communication (slack, discord, signal, whatsapp, zoom), productivity (notion, superhuman, linear-linear, anki), AI (chatgpt, claude, ollama), media (spotify, vlc), security (1password, bitwarden, tailscale), and more.
 
@@ -214,7 +214,7 @@ git clone https://github.com/AdamWagworski/stackline.git ~/.hammerspoon/stacklin
 
 ## 9. Alfred 5
 
-Primary launcher (replaces Spotlight). **Powerpack license: `T0WDJ9C6DC`**.
+Primary launcher (replaces Spotlight). **Powerpack license: `YOUR_ALFRED_LICENSE`**.
 
 Alfred preferences are stored in `config/alfred/` and deployed by setup.sh.
 
@@ -255,7 +255,7 @@ All configured via `defaults write` in setup.sh:
 | SpaceId | Launch on login, underline active monitor |
 | Rectangle | Alternate shortcuts, launch on login |
 | Flux | Denver area (39.62, -104.87), 2300K late / 6100K night |
-| CleanShot X | No desktop icons, license: `XTTBRHQR-YNLGHDZS-ZDKKTDHG-ZZJKPCQD` |
+| CleanShot X | No desktop icons, license: `YOUR_CLEANSHOT_LICENSE` |
 | MeetingBar | macOS Calendar, Google Meet default |
 | Tailscale | Sign in to sync config |
 | 1Password | Sign in to vault, enable browser extensions |
@@ -439,9 +439,9 @@ SSH config includes OrbStack integration (`Include ~/.orbstack/ssh/config`).
 These cannot be automated and must be done after running `setup.sh`:
 
 - [ ] Create 12 desktops in Mission Control
-- [ ] Activate Alfred Powerpack license (`T0WDJ9C6DC`)
+- [ ] Activate Alfred Powerpack license (`YOUR_ALFRED_LICENSE`)
 - [ ] Set Alfred hotkey to Ctrl+D, clipboard history to Ctrl+C, terminal to iTerm
-- [ ] Activate CleanShot X license (`XTTBRHQR-YNLGHDZS-ZDKKTDHG-ZZJKPCQD`)
+- [ ] Activate CleanShot X license (`YOUR_CLEANSHOT_LICENSE`)
 - [ ] Sign in to Wispr Flow with Google, verify keyboard shortcuts
 - [ ] Grant **accessibility** permissions: skhd, yabai, Hammerspoon, Alfred, Rectangle, iTerm2
 - [ ] Grant **screen recording** permissions: Chrome, iTerm2, Slack, Discord, Teams, Zoom, Arc, CleanShot X
