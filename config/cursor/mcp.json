@@ -19,7 +19,7 @@
       "command": "npx",
       "args": ["-y", "mcp-remote", "https://mcp.linear.app/sse"],
       "env": {
-        "LINEAR_API_KEY": "REPLACE_WITH_LINEAR_API_KEY"
+        "LINEAR_API_KEY": "lin_api_Gv0HKRQ2zclfBBcd812NfIjUVZWeF5jC0T4oaDOc"
       }
     },
   "github": {
@@ -33,7 +33,7 @@
           "ghcr.io/github/github-mcp-server"
         ],
         "env": {
-          "GITHUB_PERSONAL_ACCESS_TOKEN": "REPLACE_WITH_GITHUB_PAT"
+          "GITHUB_PERSONAL_ACCESS_TOKEN": "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"
         }
       }
     }
